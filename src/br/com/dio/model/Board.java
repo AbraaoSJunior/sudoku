@@ -3,67 +3,67 @@ package br.com.dio.model;
 import java.util.Collection;
 import java.util.List;
 
-import static br.com.dio.model.GameStatusEnum.COMPLETE;
-import static br.com.dio.model.GameStatusEnum.INCOMPLETE;
-import static br.com.dio.model.GameStatusEnum.NON_STARTED;
+import static br.com.dio.model.GameStatusEnum.COMPLETO;
+import static br.com.dio.model.GameStatusEnum.INCOMPLETO;
+import static br.com.dio.model.GameStatusEnum.NAO_INICIADO;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class Board {
 
-    private final List<List<Space>> spaces;
+    private final List<List<Espaco>> espacos;
 
-    public Board(final List<List<Space>> spaces) {
-        this.spaces = spaces;
+    public Board(final List<List<Espaco>> espacos) {
+        this.espacos = espacos;
     }
 
-    public List<List<Space>> getSpaces() {
-        return spaces;
+    public List<List<Espaco>> getEspacos() {
+        return espacos;
     }
 
     public GameStatusEnum getStatus(){
-        if (spaces.stream().flatMap(Collection::stream).noneMatch(s -> !s.isFixed() && nonNull(s.getActual()))){
-            return NON_STARTED;
+        if (espacos.stream().flatMap(Collection::stream).noneMatch(s -> !s.isFixo() && nonNull(s.getAtual()))){
+            return NAO_INICIADO;
         }
 
-        return spaces.stream().flatMap(Collection::stream).anyMatch(s -> isNull(s.getActual())) ? INCOMPLETE : COMPLETE;
+        return espacos.stream().flatMap(Collection::stream).anyMatch(s -> isNull(s.getAtual())) ? INCOMPLETO : COMPLETO;
     }
 
-    public boolean hasErrors(){
-        if(getStatus() == NON_STARTED){
+    public boolean temErros(){
+        if(getStatus() == NAO_INICIADO){
             return false;
         }
 
-        return spaces.stream().flatMap(Collection::stream)
-                .anyMatch(s -> nonNull(s.getActual()) && !s.getActual().equals(s.getExpected()));
+        return espacos.stream().flatMap(Collection::stream)
+                .anyMatch(s -> nonNull(s.getAtual()) && !s.getAtual().equals(s.getNumEsperado()));
     }
 
-    public boolean changeValue(final int col, final int row, final int value){
-        var space = spaces.get(col).get(row);
-        if (space.isFixed()){
+    public boolean mudarValor(final int coluna, final int linha, final int valor){
+        var espaco = espacos.get(coluna).get(linha);
+        if (espaco.isFixo()){
             return false;
         }
 
-        space.setActual(value);
+        espaco.setAtual(valor);
         return true;
     }
 
-    public boolean clearValue(final int col, final int row){
-        var space = spaces.get(col).get(row);
-        if (space.isFixed()){
+    public boolean excluirValor(final int coluna, final int linha){
+        var espaco = espacos.get(coluna).get(linha);
+        if (espaco.isFixo()){
             return false;
         }
 
-        space.clearSpace();
+        espaco.limparEspaco();
         return true;
     }
 
-    public void reset(){
-        spaces.forEach(c -> c.forEach(Space::clearSpace));
+    public void resetar(){
+        espacos.forEach(c -> c.forEach(Espaco::limparEspaco));
     }
 
-    public boolean gameIsFinished(){
-        return !hasErrors() && getStatus().equals(COMPLETE);
+    public boolean jogoFinalizado(){
+        return !temErros() && getStatus().equals(COMPLETO);
     }
 
 }
